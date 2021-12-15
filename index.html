@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html style="background-color: rgb(208,211,218);">
+    <head>
+        <title>Fetch API</title>
+        <meta charset='UTF-8'>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name='viewport' content='width=device-width, initial-scale=1'>
+        <!-- <meta http-equiv="refresh" content="2">  -->
+    </head>
+    <body>
+        <div class="container"></div>
+
+        <script>
+            async function obtenerDatos() {
+                let url = 'http://localhost:1880/analogicas';
+                try {
+                    let res = await fetch(url);
+                    const data = await res.json();
+                    console.log(data);
+                    return data;
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+
+            async function obtenerEstados() {
+                let url = 'http://localhost:1880/estados';
+                try {
+                    let res = await fetch(url);
+                    const data = await res.json();
+                    console.log(data);
+                    return data;
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+
+            const setpoint = async () => {
+                var x = document.getElementById("wert1");
+                const rawResponse = await fetch('http://localhost:1880/sensor', {
+                    method: 'POST',
+                    headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({datos: x.value, nombre: 'Freddy'})
+                });
+                const content = await rawResponse.json();
+
+                console.log(content);
+            }
+
+            async function renderizarDatos() {
+                let html = '<h1 style="color: rgb(0,51,153);">Dahsboard Web para Node-Red</h1>';
+
+                html += '<h2>Variables analógicas</h2>';
+                let datos = await obtenerDatos();
+                datos.forEach(dato => {
+                    let htmlSegment = `<div class="container-dato" id="${dato.id}">
+                                        <div class="container-body">${dato.variable}:&nbsp${dato.valor}&nbsp${dato.unidad}</div>
+                                        </br>
+                                    </div>`;
+                    html += htmlSegment;
+                });
+
+                html += '<h2>Variables discretas</h2>';
+                html += '<div class="container-body">Estado 1 &nbsp Estado 2 &nbsp Estado 3 &nbsp Estado 4</div>'
+                let estados = await obtenerEstados();
+                estados.forEach(estado => {
+                    let htmlSegment = `<img style="margin: 0px 15px 0px 2px; height: 50px; width: 50px; " src="Images/Status0${estado.valor}.png"/>`;
+                    html += htmlSegment;
+                });
+
+                html += `<form method="post" action="" onsubmit="return setpoint();">
+                    <input type="text" id="wert1" name='"Flowrate"' size="2" style="height: 45px; width: 50px; font-size: 21px; text-align: center; padding: 8px;">
+                    <input type="submit" value="Set a new Flowrate" style="height: 45px; width: 200px">
+                    </form>`
+
+                let container = document.querySelector('.container');
+                container.innerHTML = html;
+            }
+
+            renderizarDatos();
+        </script>
+    </body>
+</html>

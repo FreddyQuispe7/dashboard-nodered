@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html style="background-color: rgb(208,211,218);">
+    <head>
+        <title>Fetch API</title>
+        <meta charset='UTF-8'>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name='viewport' content='width=device-width, initial-scale=1'>
+        <meta http-equiv="refresh" content="2">
+    </head>
+    <body>
+        <div class="container"></div>
+
+        <script>
+            async function obtenerDatos() {
+                let url = 'http://100.24.52.106:1880/sensores';
+                try {
+                    let res = await fetch(url);
+                    const data = await res.json();
+                    console.log(data);
+                    return data;
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+
+            async function renderizarDatos() {
+                let html = '<h1 style="color: rgb(0,51,153);">Dahsboard Web para Node-Red</h1>';
+
+                html += '<h2>Sensores</h2>';
+                let datos = await obtenerDatos();
+                datos.forEach(dato => {
+                    let htmlSegment = `<div class="container-dato" id="${dato.id}">
+                                        <div class="container-body">${dato.variable}:&nbsp${dato.valor}&nbsp${dato.unidad}</div>
+                                        </br>
+                                    </div>`;
+                    html += htmlSegment;
+                });
+
+                let container = document.querySelector('.container');
+                container.innerHTML = html;
+            }
+
+            renderizarDatos();
+        </script>
+    </body>
+</html>
